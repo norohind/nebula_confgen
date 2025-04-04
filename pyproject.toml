@@ -1,0 +1,19 @@
+[project]
+name = "nebula_confgen"
+version = "0.0.1"
+authors = [
+  { name="norohind", email="60548839+norohind@users.noreply.github.com" },
+]
+description = "Script to generate configs for nebula VPN"
+# readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+
+[project.urls]
+Homepage = "https://github.com/norohind/nebula_confgen"
+Issues = "https://github.com/norohind/nebula_confgen/issues"
