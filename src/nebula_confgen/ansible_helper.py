@@ -44,7 +44,7 @@ def generate_inventory(stack: NetStack, output_dir: Path = None) -> None:
 
     inventory_hosts = dict()
     for host in stack.hosts:
-        if not (isinstance(host, AnsibleHost) or getattr(host, 'inventory_include')):
+        if isinstance(host, AnsibleHost) is False or getattr(host, 'inventory_include', False) is False:
             print(f"Skipping host {host.name!r} for ansible inventory")
             continue
 

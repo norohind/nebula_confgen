@@ -1,6 +1,6 @@
 [project]
 name = "nebula_confgen"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
   { name="norohind", email="60548839+norohind@users.noreply.github.com" },
 ]
