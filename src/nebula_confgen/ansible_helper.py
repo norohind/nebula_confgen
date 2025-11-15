@@ -12,8 +12,6 @@ class AnsibleHost(Host):
     ansible_host: str = None
     nebula_groups: str | None = None
     inventory_include: bool = True
-    nebula_service_name: str = None
-    service_manager: str = None
 
     def __post_init__(self):
         assert self.ansible_host
@@ -53,7 +51,7 @@ def generate_inventory(stack: NetStack, output_dir: Path = None) -> None:
             'nebula_addr': f'{host.addr}/{host.subnet}'
         }
 
-        for var_name in ('nebula_groups', 'nebula_service_name', 'service_manager'):
+        for var_name in ('nebula_groups',):
             if getattr(host, var_name):
                 host_vars[var_name] = getattr(host, var_name)
 
