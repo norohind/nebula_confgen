@@ -57,7 +57,7 @@ class NetStack:
             authorized_users: tuple[AuthorizedUser, ...] = tuple(),
             enable_dns: bool = False
     ):
-        self.hosts: set[Host] = set()
+        self.hosts: list[Host] = list()
 
         self.listen_port = listen_port
         self.ca: list[str] = list()
@@ -76,7 +76,7 @@ class NetStack:
         self.enable_dns = enable_dns
 
     def add_host(self, host: Host) -> None:
-        self.hosts.add(host)
+        self.hosts.append(host)
 
     def add_hosts(self, hosts: Iterable[Host]) -> None:
         for host in hosts:
@@ -93,7 +93,7 @@ class NetStack:
     def get_lighthouses_for(self, hostname: str) -> list[str]:
         return [host.addr for host in self.hosts if host.am_lighthouse and host.name != hostname]
 
-    def get_config(self, host: Host) -> ...:
+    def get_config(self, host: Host) -> dict:
         if self.enable_dns:
             serve_dns = host.serve_dns if host.serve_dns is not None else host.am_lighthouse
 
