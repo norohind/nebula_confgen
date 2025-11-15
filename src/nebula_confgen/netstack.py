@@ -54,7 +54,8 @@ class NetStack:
             listen_port: int = 4242,
             pki_blocklist: Iterable[str] = None,
             default_inbound_rules: tuple[FirewallRule, ...] = tuple(),
-            authorized_users: tuple[AuthorizedUser, ...] = tuple()
+            authorized_users: tuple[AuthorizedUser, ...] = tuple(),
+            enable_dns: bool = False
     ):
         self.hosts: set[Host] = set()
 
@@ -71,6 +72,8 @@ class NetStack:
 
         self.default_inbound_rules = default_inbound_rules
         self.authorized_users = authorized_users
+
+        self.enable_dns = enable_dns
 
     def add_host(self, host: Host) -> None:
         self.hosts.add(host)
@@ -91,7 +94,11 @@ class NetStack:
         return [host.addr for host in self.hosts if host.am_lighthouse and host.name != hostname]
 
     def get_config(self, host: Host) -> ...:
-        serve_dns = host.serve_dns if host.serve_dns is not None else host.am_lighthouse
+        if self.enable_dns:
+            serve_dns = host.serve_dns if host.serve_dns is not None else host.am_lighthouse
+
+        else:
+            serve_dns = False
 
         inbound_rules: list[FirewallRule] = list(host.inbound_rules)
         if host.merge_stack_inbound_rules:
