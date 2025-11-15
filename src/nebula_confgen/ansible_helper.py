@@ -1,5 +1,6 @@
 import json
 from dataclasses import dataclass
+from ipaddress import ip_network
 from pathlib import Path
 
 from .netstack import Host, NetStack
@@ -41,7 +42,7 @@ def generate_inventory(stack: NetStack, output_dir: Path = None) -> None:
     output_dir = get_output_dir(output_dir)
 
     inventory_hosts = dict()
-    for host in stack.hosts:
+    for host in sorted(stack.hosts, key=lambda h: ip_network(h.addr)):
         if isinstance(host, AnsibleHost) is False or getattr(host, 'inventory_include', False) is False:
             print(f"Skipping host {host.name!r} for ansible inventory")
             continue
