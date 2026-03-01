@@ -67,7 +67,7 @@ class NetStack:
         if pki_blocklist is None:
             pki_blocklist = list()
 
-        self.pki_blocklist = pki_blocklist
+        self.pki_blocklist = list(pki_blocklist)
         self.add_hosts(hosts)
 
         self.default_inbound_rules = default_inbound_rules
