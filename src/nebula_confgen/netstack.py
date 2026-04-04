@@ -1,3 +1,4 @@
+import socket
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable, Literal, NotRequired, TypedDict
@@ -82,11 +83,31 @@ class NetStack:
         for host in hosts:
             self.add_host(host)
 
+    @staticmethod
+    def _resolve_address(addr: str) -> str | None:
+        """Resolve a domain name to an IP address. Returns None if already an IP or resolution fails."""
+        try:
+            socket.inet_aton(addr)
+            return None  # Already an IP
+        except OSError:
+            pass
+
+        try:
+            return socket.gethostbyname(addr)
+        except socket.gaierror:
+            return None
+
     def get_static_host_map_for(self, hostname: str) -> dict[str, list[str]]:
         res = dict()
         for host in self.hosts:
             if host.am_lighthouse is True and host.name != hostname:
-                res[host.addr] = [f'{addr}:{self.listen_port}' for addr in host.public_addresses]
+                addrs = []
+                for addr in host.public_addresses:
+                    addrs.append(f'{addr}:{self.listen_port}')
+                    resolved = self._resolve_address(addr)
+                    if resolved is not None:
+                        addrs.append(f'{resolved}:{self.listen_port}')
+                res[host.addr] = addrs
 
         return res
 
