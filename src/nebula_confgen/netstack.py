@@ -131,7 +131,8 @@ class NetStack:
         advertise_addrs: list[str] = []
         for addr in host.public_addresses:
             if ':' not in addr:
-                addr = addr + ':0'
+                # nebula exits if it can't resolve advertise_addrs on start (e.g. DNS isn't up yet at boot)
+                addr = (self._resolve_address(addr) or addr) + ':0'
 
             advertise_addrs.append(addr)
 
