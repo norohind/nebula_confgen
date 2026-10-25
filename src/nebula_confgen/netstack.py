@@ -130,11 +130,14 @@ class NetStack:
 
         advertise_addrs: list[str] = []
         for addr in host.public_addresses:
-            if ':' not in addr:
-                # nebula exits if it can't resolve advertise_addrs on start (e.g. DNS isn't up yet at boot)
-                addr = (self._resolve_address(addr) or addr) + ':0'
+            if ':' in addr:
+                advertise_addrs.append(addr)
+                continue
 
-            advertise_addrs.append(addr)
+            advertise_addrs.append(addr + ':0')
+            resolved = self._resolve_address(addr)
+            if resolved is not None:
+                advertise_addrs.append(resolved + ':0')
 
         return {
             'pki': {
