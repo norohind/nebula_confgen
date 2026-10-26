@@ -1,5 +1,5 @@
 import socket
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Iterable, Literal, NotRequired, TypedDict
 
@@ -45,6 +45,8 @@ class Host:
     tun_name: str = 'nebula1'
     dns_host: str = "self.addr"
     dns_port: int = 53
+    # lighthouse.remote_allow_list: underlay addresses this host must not use, e.g. where only one direction passes
+    remote_allow_list: dict[str, bool] = field(default_factory=dict)
 
 
 class NetStack:
@@ -139,6 +141,20 @@ class NetStack:
             if resolved is not None:
                 advertise_addrs.append(resolved + ':0')
 
+        lighthouse = {
+            'am_lighthouse': host.am_lighthouse,
+            'serve_dns': serve_dns,
+            'dns': {
+                'host': host.addr if host.dns_host == 'self.addr' else host.dns_host,
+                'port': host.dns_port
+            },
+            'hosts': sorted(self.get_lighthouses_for(host.name)),
+            'local_allow_list': {'0.0.0.0/0': False},
+            'advertise_addrs': advertise_addrs
+        }
+        if host.remote_allow_list:
+            lighthouse['remote_allow_list'] = dict(host.remote_allow_list)
+
         return {
             'pki': {
                 'ca': '\n'.join(ca for ca in self.ca),  # We do support more than 1 ca for ca rotation
@@ -148,17 +164,7 @@ class NetStack:
                 'disconnect_invalid': True,
             },
             'static_host_map': self.get_static_host_map_for(host.name),
-            'lighthouse': {
-                'am_lighthouse': host.am_lighthouse,
-                'serve_dns': serve_dns,
-                'dns': {
-                    'host': host.addr if host.dns_host == 'self.addr' else host.dns_host,
-                    'port': host.dns_port
-                },
-                'hosts': sorted(self.get_lighthouses_for(host.name)),
-                'local_allow_list': {'0.0.0.0/0': False},
-                'advertise_addrs': advertise_addrs
-            },
+            'lighthouse': lighthouse,
             'listen': {
                 'port': self.listen_port
             },
