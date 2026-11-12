@@ -47,6 +47,9 @@ class Host:
     dns_port: int = 53
     # lighthouse.remote_allow_list: underlay addresses this host must not use, e.g. where only one direction passes
     remote_allow_list: dict[str, bool] = field(default_factory=dict)
+    # lighthouse.local_allow_list: own addresses this host advertises; the default advertises none
+    local_allow_list: dict[str, bool] | None = None
+    preferred_ranges: tuple[str, ...] = ('192.168.1.0/24',)
 
 
 class NetStack:
@@ -150,7 +153,7 @@ class NetStack:
             },
             'hosts': sorted(self.get_lighthouses_for(host.name)),
             # nebula listens on IPv4 only: an advertised IPv6 address cannot be reached
-            'local_allow_list': {'0.0.0.0/0': False, '::/0': False},
+            'local_allow_list': {'0.0.0.0/0': False, '::/0': False, **(host.local_allow_list or {})},
             'advertise_addrs': advertise_addrs
         }
         if host.remote_allow_list:
@@ -172,7 +175,7 @@ class NetStack:
             'punchy': {
                 'respond': True
             },
-            'preferred_ranges': ['192.168.1.0/24'],
+            'preferred_ranges': list(host.preferred_ranges),
             'relay': {
                 'relays': sorted([other_host.addr for other_host in self.hosts if not host.am_relay and other_host.am_relay]),  # No relays if the host is relay
                 'am_relay': host.am_relay,
