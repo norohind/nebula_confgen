@@ -149,7 +149,8 @@ class NetStack:
                 'port': host.dns_port
             },
             'hosts': sorted(self.get_lighthouses_for(host.name)),
-            'local_allow_list': {'0.0.0.0/0': False},
+            # nebula listens on IPv4 only: an advertised IPv6 address cannot be reached
+            'local_allow_list': {'0.0.0.0/0': False, '::/0': False},
             'advertise_addrs': advertise_addrs
         }
         if host.remote_allow_list:
