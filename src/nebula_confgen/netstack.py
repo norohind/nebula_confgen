@@ -61,7 +61,8 @@ class NetStack:
             pki_blocklist: Iterable[str] = None,
             default_inbound_rules: tuple[FirewallRule, ...] = tuple(),
             authorized_users: tuple[AuthorizedUser, ...] = tuple(),
-            enable_dns: bool = False
+            enable_dns: bool = False,
+            stats: dict | None = None,
     ):
         self.hosts: list[Host] = list()
 
@@ -80,6 +81,8 @@ class NetStack:
         self.authorized_users = authorized_users
 
         self.enable_dns = enable_dns
+        # the stats section of nebula's config, the same on every host
+        self.stats = stats
 
     def add_host(self, host: Host) -> None:
         self.hosts.append(host)
@@ -159,7 +162,7 @@ class NetStack:
         if host.remote_allow_list:
             lighthouse['remote_allow_list'] = dict(host.remote_allow_list)
 
-        return {
+        config = {
             'pki': {
                 'ca': '\n'.join(ca for ca in self.ca),  # We do support more than 1 ca for ca rotation
                 'cert': f'{host.config_prefix}/{host.name}.crt',
@@ -207,3 +210,7 @@ class NetStack:
                 'inbound': inbound_rules
             }
         }
+        if self.stats is not None:
+            config['stats'] = dict(self.stats)
+
+        return config
